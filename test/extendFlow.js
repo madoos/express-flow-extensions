@@ -23,7 +23,6 @@ describe('express-flow-extends', () => {
   it('Should add routers', async function () {
     const server = extendFlow(express())
     server.use(bodyParser.json())
-
     const responseBodyHandler = (req, res) => res.send(req.body)
 
     server.addRouters([
@@ -88,6 +87,45 @@ describe('express-flow-extends', () => {
       .end()
 
     expect(putData.body).to.deep.equal(expectedData)
+  })
+
+  it('Should add middleware', async () => {
+    const server = extendFlow(express())
+    server.use(bodyParser.json())
+
+    const expectedResponse = {
+      foo: 'bar',
+      middleware1: true,
+      middleware2: true
+    }
+
+    server.addRouters([
+      {
+        method: 'POST',
+        path: '/middleware',
+        handler: (req, res) => res.send(req.body),
+        middleware: [
+          (req, res, next) => {
+            req.body.middleware1 = true
+            next()
+          },
+          (req, res, next) => {
+            req.body.middleware2 = true
+            next()
+          }
+        ]
+      }
+    ])
+
+    const { body } = await request(server)
+      .post('/middleware')
+      .send({ foo: 'bar' })
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json')
+      .expect(200)
+      .end()
+
+    expect(body).to.deep.equal(expectedResponse)
   })
 
   it('Should apply Joi validation', async function () {
@@ -218,5 +256,34 @@ describe('express-flow-extends', () => {
       .end()
 
     expect(expectedBody).to.deep.equal(body)
+  })
+
+  it('.flow should compose a correct handler and handle send errors', async () => {
+    const expectedErrorMsg = 'error in hander'
+    const { flow } = extendFlow
+    const server = extendFlow(express())
+    server.use(bodyParser.json())
+
+    server.addRouters([
+      {
+        method: 'POST',
+        path: '/flow/error',
+        handler: flow(
+          R.prop('body'),
+          data => Promise.reject(new Error(expectedErrorMsg)),
+          R.identity
+        )
+      }
+    ])
+
+    const api = request(server)
+
+    const koResponse = await api
+      .post('/flow/error')
+      .send({ foo: 'bar' })
+      .expect(500)
+      .end()
+
+    expect(koResponse.error.text).to.be.equal(expectedErrorMsg)
   })
 })

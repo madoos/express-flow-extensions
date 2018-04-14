@@ -14,7 +14,7 @@ const enableReturn = handler => {
       return data
         .then(_data => res.status(httpStatus.OK).send(_data))
         .catch(err =>
-          res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err.stack)
+          res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err.message)
         )
     }
     return res.status(httpStatus.OK).send(data)

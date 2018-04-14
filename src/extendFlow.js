@@ -8,13 +8,18 @@ const validationJoiErrors = celebrate.errors
 
 const _addRouters = R.curry((app, routers) => {
   routers.forEach(router => {
-    const { method, path, handler, validation } = router
+    const { method, path, handler, validation, middleware = [] } = router
     const normalizedMethod = method.toLowerCase()
 
     if (validation) {
-      app[normalizedMethod](path, validateJoiSchema(validation), handler)
+      app[normalizedMethod](
+        path,
+        validateJoiSchema(validation),
+        ...middleware,
+        handler
+      )
     } else {
-      app[normalizedMethod](path, handler)
+      app[normalizedMethod](path, ...middleware, handler)
     }
   })
 

@@ -1,7 +1,7 @@
 {
   "name": "express-flow-extensions",
   "version": "0.0.0",
-  "description": "Set of tools to accelerate the development with expres",
+  "description": "Set of tools to accelerate the development with express",
   "main": "index.js",
   "dependencies": {
     "bluebird": "^3.5.1",

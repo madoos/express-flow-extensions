@@ -2,7 +2,7 @@
 
 # express-flow-extensions
 
-_Set of tools to accelerate the development with expres_
+_Set of tools to accelerate the development with express._
 
 ## Getting Started
 
@@ -12,20 +12,46 @@ To install:
 
 In your project:
 
-``` javascript
- // => Example
+```javascript
+const expressFlowExtension = require('express-flow-extensions')
+const { Joi, enableReturn, flow } = expressFlowExtension
+const express = require('express')
+const bodyParser = require('body-parser')
+const R = require('ramda')
+const authentication = require('./middleware/authentication')
+const db = require('./db')
+
+const app = expressFlowExtend(express())
+
+app
+.use(bodyParser.json())
+.addRouters([
+  {
+    method: 'GET',
+    path: '/posts',
+    handler: enableReturn(() => db.findAllPosts())
+  },
+  {
+    method: 'GET',
+    path: '/tags/:postId',
+    validation: {
+      params: {
+        postId: Joi.number().integer()
+      }
+    },
+    middleware: [authentication],
+    handler: flow(
+      R.path(['params', 'postId']),
+      db.findPostById,
+      db.findTagsByPost
+    )
+  }
+])
+
+await app.listenAsync(300)
 ```
 
-## Publish
-
-_Execute the command `npm run make:publish`. If UPDATE_GIT_BRANCHES is 'true' branches `develop` and `master` will be update in remote and local repo._
-
-```bash
-
-npm run make:publish <VERSION> <UPDATE_GIT_BRANCHES>
-
-# Example: npm run make:publish 1.0.0 true
-```
+#
 
 ## License
 
@@ -39,4 +65,3 @@ MIT © [Maurice Domínguez](maurice.ronet.dominguez@gmail.com)
 [daviddm-url]: https://david-dm.org/madoos/express-flow-extensions
 [coveralls-image]: https://coveralls.io/repos/madoos/express-flow-extensions/badge.svg
 [coveralls-url]: https://coveralls.io/r/madoos/express-flow-extensions
-

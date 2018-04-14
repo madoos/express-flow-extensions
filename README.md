@@ -13,15 +13,15 @@ To install:
 In your project:
 
 ```javascript
-const expressFlowExtension = require('express-flow-extensions')
-const { Joi, enableReturn, flow } = expressFlowExtension
+const expressFlowExtensions = require('express-flow-extensions')
+const { Joi, enableReturn, flow } = expressFlowExtensions
 const express = require('express')
 const bodyParser = require('body-parser')
 const R = require('ramda')
 const authentication = require('./middleware/authentication')
 const db = require('./db')
 
-const app = expressFlowExtend(express())
+const app = expressFlowExtensions(express())
 
 app
 .use(bodyParser.json())
@@ -45,10 +45,18 @@ app
       db.findPostById,
       db.findTagsByPost
     )
+  },
+  {
+    method: 'GET',
+    path: '/tags',
+    handler: (req, res) => {
+        db.findAllTags()
+        .then((tags) => res.send(tags))
+    }
   }
 ])
 
-await app.listenAsync(300)
+await app.listenAsync(3000)
 ```
 
 #

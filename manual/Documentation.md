@@ -24,6 +24,9 @@
 -   [middleware][19]
     -   [Parameters][20]
     -   [Examples][21]
+-   [background][22]
+    -   [Parameters][23]
+    -   [Examples][24]
 
 ## pipe
 
@@ -31,7 +34,7 @@ Composes synchronous and asynchronous functions, returning as a final result a p
 
 ### Parameters
 
--   `fns` **...[Function][22]** functions to compose.
+-   `fns` **...[Function][25]** functions to compose.
 
 ### Examples
 
@@ -41,7 +44,7 @@ const asyncDouble = (n) => Promise.resolve(n*2)
 const result = await pipe(plus, asyncDouble)(2) // => 4
 ```
 
-Returns **[Function][22]** 
+Returns **[Function][25]** 
 
 ## enableReturn
 
@@ -49,7 +52,7 @@ Allows to use synchronous or asynchronous functions with return to respond with 
 
 ### Parameters
 
--   `handler` **([Function][22] \| [Array][23] \| [Object][24])** 
+-   `handler` **([Function][25] \| [Array][26] \| [Object][27])** 
 
 ### Examples
 
@@ -83,7 +86,7 @@ app.get('/', handler.baz)
 // in get request '/baz', server response 'foo baz'
 ```
 
-Returns **[Function][22]** requestHandler Response with res object.
+Returns **[Function][25]** requestHandler Response with res object.
 
 ## withStatus
 
@@ -91,8 +94,8 @@ return status with a declarative style
 
 ### Parameters
 
--   `descriptor` **[Object][24]** object with a set of conditions to test data with
--   `data` **[Object][24]** object to test descriptor conditions
+-   `descriptor` **[Object][27]** object with a set of conditions to test data with
+-   `data` **[Object][27]** object to test descriptor conditions
 
 ### Examples
 
@@ -103,7 +106,7 @@ flow(..., withStatus({
 }))
 ```
 
-Returns **[Object][24]** containing data and first status that matched its condition
+Returns **[Object][27]** containing data and first status that matched its condition
 
 ## flow
 
@@ -112,7 +115,7 @@ If the request is successful send as status code 200 otherwise status code 500 a
 
 ### Parameters
 
--   `fns` **...[Function][22]** 
+-   `fns` **...[Function][25]** 
 
 ### Examples
 
@@ -123,13 +126,9 @@ const asyncDouble = (n) => Promise.resolve(n*2)
 const handler = flow(getNumberInParam, plus, asyncDouble)
 
 app.get('/', handler) // in get request '/2', server response 6
-
- // Configure response to get more information see Usage Custom response
-
-const handlers = flow({ type: 'post' }, (req) => `foo ${req.body.baz}`)
 ```
 
-Returns **[Function][22]** Composed handler
+Returns **[Function][25]** Composed handler
 
 ## createRouter
 
@@ -137,7 +136,7 @@ Create an express router object adding the specified routes for each object.
 
 ### Parameters
 
--   `routes` **[Array][23]&lt;[Object][24]>** 
+-   `routes` **[Array][26]&lt;[Object][27]>** 
 
 ### Examples
 
@@ -153,7 +152,7 @@ const api = createRouter([{
 app.use('api', apiRouter)
 ```
 
-Returns **[Object][24]** Express Router instance
+Returns **[Object][27]** Express Router instance
 
 ## projection
 
@@ -161,8 +160,8 @@ Transforms the keys of one object into another, it is very useful to obtain data
 
 ### Parameters
 
--   `descriptor` **[Object][24]** 
--   `src` **[Object][24]** 
+-   `descriptor` **[Object][27]** 
+-   `src` **[Object][27]** 
 
 ### Examples
 
@@ -183,7 +182,7 @@ const descriptor = {
  })(req)
 ```
 
-Returns **[Object][24]** The object modeled with the descriptor paths.
+Returns **[Object][27]** The object modeled with the descriptor paths.
 
 ## middleware
 
@@ -191,10 +190,10 @@ Create a express middleware.
 
 ### Parameters
 
--   `definition` **[Object][24]** { handler, target, getter }
-    -   `definition.handler` **[Function][22]** Async or sync function to put into middleware.
-    -   `definition.target` **[String][25]** Property name to add to request object.
-    -   `definition.getter` **([Function][22] \| [String][25])** Property or function to get data ass argument to pass to the handler function.
+-   `definition` **[Object][27]** { handler, target, getter }
+    -   `definition.handler` **[Function][25]** Async or sync function to put into middleware.
+    -   `definition.target` **[String][28]** Property name to add to request object.
+    -   `definition.getter` **([Function][25] \| [String][28])** Property or function to get data ass argument to pass to the handler function.
 
 ### Examples
 
@@ -211,7 +210,33 @@ app.get('/:age', validateAge, (req, res) => res.send(req.__is_adult__))
 // in get request '/21', server response true
 ```
 
-Returns **[Function][22]** Express middleware.
+Returns **[Function][25]** Express middleware.
+
+## background
+
+Execute a function in background (is an alias for tap combinator).
+
+### Parameters
+
+-   `f` **[Function][25]** 
+
+### Examples
+
+```javascript
+const getNumberInParam = (req) => req.params.n
+const plus = (n) => n + 1
+const asyncDouble = (n) => Promise.resolve(n*2)
+const handler = flow(getNumberInParam, plus, asyncDouble)
+
+app.get('/', flow(
+ getNumberInParam,
+ plus,
+ background((n) => console.log('result of plus:', n))
+ asyncDouble
+))
+```
+
+Returns **[Function][25]** 
 
 [1]: #pipe
 
@@ -255,10 +280,16 @@ Returns **[Function][22]** Express middleware.
 
 [21]: #examples-6
 
-[22]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
+[22]: #background
 
-[23]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+[23]: #parameters-7
 
-[24]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+[24]: #examples-7
 
-[25]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+[25]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
+
+[26]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+
+[27]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+
+[28]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String

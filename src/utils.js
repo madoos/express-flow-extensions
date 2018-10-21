@@ -122,10 +122,6 @@ const withStatus = R.curry((descriptor, data) => {
  *
  * app.get('/', handler) // in get request '/2', server response 6
  *
- *  // Configure response to get more information see Usage Custom response
- *
- * const handlers = flow({ type: 'post' }, (req) => `foo ${req.body.baz}`)
- *
  * @param {...Function} fns
  * @returns {Function} Composed handler
  */
@@ -266,6 +262,26 @@ const middleware = function ({ handler, target, getter }) {
     }
   }
 }
+
+/**
+ *
+ * Execute a function in background (is an alias for tap combinator).
+ * @example
+ *
+ * const getNumberInParam = (req) => req.params.n
+ * const plus = (n) => n + 1
+ * const asyncDouble = (n) => Promise.resolve(n*2)
+ * const handler = flow(getNumberInParam, plus, asyncDouble)
+ *
+ * app.get('/', flow(
+ *  getNumberInParam,
+ *  plus,
+ *  background((n) => console.log('result of plus:', n))
+ *  asyncDouble
+ * ))
+ * @param {Function} f
+ * @returns {Function}
+ */
 
 const background = R.tap
 

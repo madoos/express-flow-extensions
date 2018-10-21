@@ -64,6 +64,7 @@ app
         baz: Joi.number().integer()
       }
     },
+    ...
 }])
 
 await app.listenAsync(3000)
@@ -84,7 +85,8 @@ app
 .addRouters([{
     method: 'POST',
     path: '/foo',
-    middleware: [bodyParser.json()]
+    middleware: [bodyParser.json()],
+    ...
 }])
 
 await app.listenAsync(3000)
@@ -96,7 +98,6 @@ To handler the status code use the methods withStatus in the las part of pipelin
 
 ```javascript
 const handler = flow(
-  { type: "post" },
   R.prop("body"),
   db.findPostById,
   db.findTagsByPost,
@@ -120,7 +121,6 @@ const authentication = require('./middleware/authentication')
 const db = require('./db')
 
 const app = expressExtensions(express())
-const responseOpt = { type:'get' }
 
 app
 .use(bodyParser.json())
@@ -128,7 +128,7 @@ app
   {
     method: 'GET',
     path: '/posts',
-    handler: enableReturn(() => db.findAllPosts(), responseOpt)
+    handler: enableReturn(() => db.findAllPosts())
   },
   {
     method: 'GET',
@@ -140,7 +140,6 @@ app
     },
     middleware: [authentication],
     handler: flow(
-      responseOpt,
       R.path(['params', 'postId']),
       db.findPostById,
       db.findTagsByPost

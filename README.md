@@ -1,4 +1,4 @@
-# campusapp-express-extensions
+# express-flow-extensions
 
 _Set of tools to accelerate the development with express using a functional approach._
 

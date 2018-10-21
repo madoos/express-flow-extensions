@@ -6,7 +6,7 @@
   "main": "index.js",
   "dependencies": {
     "bluebird": "^3.5.1",
-    "celebrate": "^8.0.0",
+    "celebrate": "^9.0.0",
     "http-status": "^1.0.1",
     "is-promise": "^2.1.0",
     "module-alias": "^2.0.1",

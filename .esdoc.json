@@ -1,0 +1,57 @@
+{
+  "source": ".",
+  "includes": ["^src", "^lib"],
+  "destination": "./docs",
+  "plugins": [
+    {
+      "name": "esdoc-node"
+    },
+    {
+      "name": "esdoc-brand-plugin",
+      "option": {
+        "title": "express-flow-extensions",
+        "repository": "git+https://github.com/madoos/express-flow-extensions",
+        "site": "git+https://github.com/madoos/express-flow-extensions",
+        "author": "Maurice Domínguez"
+      }
+    },
+    {
+      "name": "esdoc-inject-script-plugin",
+      "option": {
+        "enable": true,
+        "scripts": ["./manual/assets/main-script.js"]
+      }
+    },
+    {
+      "name": "esdoc-inject-style-plugin",
+      "option": {
+        "enable": true,
+        "styles": ["./manual/assets/style.css"]
+      }
+    },
+    {
+      "name": "esdoc-publish-html-plugin",
+      "option": {
+        "template": "./node_modules/esdoc-custom-theme/template"
+      }
+    },
+    {
+      "name": "esdoc-standard-plugin",
+      "option": {
+        "coverage": {
+          "enable": true
+        },
+        "accessor": {
+          "access": ["public"],
+          "autoPrivate": true
+        },
+        "manual": {
+          "index": "./README.md",
+          "globalIndex": true,
+          "asset": "./manual/assets",
+          "files": ["./manual/Usage.md", "./manual/Documentation.md"]
+        }
+      }
+    }
+  ]
+}

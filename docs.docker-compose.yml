@@ -1,0 +1,9 @@
+version: '2'
+services:
+
+  documentation:
+    image:  "express-flow-extensions:latest"
+    ports:
+      - 4001:8080
+    environment:
+      - NODE_ENV=production

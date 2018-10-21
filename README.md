@@ -1,27 +1,29 @@
-[![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-image]][daviddm-url] [![Coverage percentage][coveralls-image]][coveralls-url]
+# campusapp-express-extensions
 
-# express-flow-extensions
+_Set of tools to accelerate the development with express using a functional approach._
 
-_Set of tools to accelerate the development with express._
+For more information see [manual/Usage](manual/Usage.md) and [manual/Documentation](manual/Documentation.md)
 
 ## Getting Started
 
 To install:
 
-    npm i --save express-flow-extensions
+    npm i --save campusapp-express-extensions
 
 In your project:
 
 ```javascript
-const expressFlowExtensions = require('express-flow-extensions')
-const { Joi, enableReturn, flow } = expressFlowExtensions
+const expressExtensions = require('campusapp-express-extensions')
+const { Joi, enableReturn, flow } = expressExtensions
 const express = require('express')
 const bodyParser = require('body-parser')
 const R = require('ramda')
 const authentication = require('./middleware/authentication')
 const db = require('./db')
 
-const app = expressFlowExtensions(express())
+const app = expressExtensions(express())
+
+cons opt = { type : 'get' }; //options for response and status server code
 
 app
 .use(bodyParser.json())
@@ -29,7 +31,7 @@ app
   {
     method: 'GET',
     path: '/posts',
-    handler: enableReturn(() => db.findAllPosts())
+    handler: enableReturn(() => db.findAllPosts(),opt)
   },
   {
     method: 'GET',
@@ -40,7 +42,7 @@ app
       }
     },
     middleware: [authentication],
-    handler: flow(
+    handler: flow(opt,
       R.path(['params', 'postId']),
       db.findPostById,
       db.findTagsByPost
@@ -58,18 +60,3 @@ app
 
 await app.listenAsync(3000)
 ```
-
-#
-
-## License
-
-MIT © [Maurice Domínguez](maurice.ronet.dominguez@gmail.com)
-
-[npm-image]: https://badge.fury.io/js/express-flow-extensions.svg
-[npm-url]: https://npmjs.org/package/express-flow-extensions
-[travis-image]: https://travis-ci.org/madoos/express-flow-extensions.svg?branch=develop
-[travis-url]: https://travis-ci.org/madoos/express-flow-extensions
-[daviddm-image]: https://david-dm.org/madoos/express-flow-extensions.svg?theme=shields.io
-[daviddm-url]: https://david-dm.org/madoos/express-flow-extensions
-[coveralls-image]: https://coveralls.io/repos/madoos/express-flow-extensions/badge.svg
-[coveralls-url]: https://coveralls.io/r/madoos/express-flow-extensions

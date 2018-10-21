@@ -1,5 +1,3 @@
-'use strict'
-
 const R = require('ramda')
 const Promise = require('bluebird')
 const celebrate = require('celebrate')
@@ -28,7 +26,7 @@ const _addRouters = R.curry((app, routers) => {
 })
 
 const promisifyListen = app => {
-  app.listenAsync = Promise.promisify(app.listen)
+  app.listenAsync = Promise.promisify(app.listen, { context: app })
   return app
 }
 

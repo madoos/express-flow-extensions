@@ -1,5 +1,3 @@
-'use strict'
-
 const { expect } = require('chai')
 const R = require('ramda')
 const express = require('express')
@@ -161,7 +159,7 @@ describe('express-flow-extends', () => {
       .expect(400)
       .end()
 
-    expect(koRequest.body.error).to.equal('Bad Request')
+    expect(koRequest.body.statusCode).to.be.equal(400)
 
     const body = { foo: 'foo1bar' }
     const okRequest = await api
@@ -259,7 +257,7 @@ describe('express-flow-extends', () => {
   })
 
   it('.flow should compose a correct handler and handle send errors', async () => {
-    const expectedErrorMsg = 'error in hander'
+    const expectedErrorMsg = ''
     const { flow } = extendFlow
     const server = extendFlow(express())
     server.use(bodyParser.json())
@@ -270,7 +268,7 @@ describe('express-flow-extends', () => {
         path: '/flow/error',
         handler: flow(
           R.prop('body'),
-          data => Promise.reject(new Error(expectedErrorMsg)),
+          () => Promise.reject(new Error(expectedErrorMsg)),
           R.identity
         )
       }
@@ -285,5 +283,213 @@ describe('express-flow-extends', () => {
       .end()
 
     expect(koResponse.error.text).to.be.equal(expectedErrorMsg)
+  })
+
+  it('.projection should map a correct object', () => {
+    const { projection } = extendFlow
+
+    const src = {
+      a: {
+        b: 'one'
+      },
+      b: [{ a: 'two' }, 2],
+      c: 'tree'
+    }
+
+    const result = projection(
+      {
+        one: 'a.b',
+        two: 'b.0.a',
+        tree: src => src.c
+      },
+      src
+    )
+
+    expect(result).to.be.deep.equal({
+      one: 'one',
+      two: 'two',
+      tree: 'tree'
+    })
+  })
+
+  it('.middleware create a correct middleware', async () => {
+    const { middleware } = extendFlow
+
+    const server = extendFlow(express())
+    server.use(bodyParser.json())
+
+    const asyncOk = middleware({
+      handler: body => Promise.resolve(R.merge({ asyncOk: true }, body)),
+      getter: req => req.body,
+      target: '__async_middleware__'
+    })
+
+    const syncOk = middleware({
+      handler: R.merge({ syncOk: true }),
+      getter: 'body',
+      target: '__sync_middleware__'
+    })
+
+    server.addRouters([
+      {
+        method: 'POST',
+        path: '/middleware',
+        middleware: [asyncOk, syncOk],
+        handler: (req, res) =>
+          res.send({
+            ...req.body,
+            ...req.__async_middleware__,
+            ...req.__sync_middleware__
+          })
+      }
+    ])
+
+    const api = request(server)
+
+    const postData = await api
+      .post('/middleware')
+      .send({ body: 'foo' })
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json')
+      .expect(200)
+      .end()
+
+    expect(postData.body).to.be.deep.equal({
+      body: 'foo',
+      asyncOk: true,
+      syncOk: true
+    })
+  })
+
+  it('.middleware create a correct middleware with error handling', async () => {
+    const { middleware } = extendFlow
+
+    const server = extendFlow(express())
+    server.use(bodyParser.json())
+
+    const asyncKo = middleware({
+      handler: () => Promise.reject(new Error('async error')),
+      getter: req => req.body,
+      target: '__async_middleware__'
+    })
+
+    const errorHandler = (err, req, res, next) => {
+      req.errors = req.errors || []
+      req.errors.push(err.message)
+      next()
+    }
+
+    const syncKo = middleware({
+      handler: () => {
+        throw new Error('sync error')
+      },
+      getter: req => req.body,
+      target: '__async_middleware__'
+    })
+
+    server.addRouters([
+      {
+        method: 'POST',
+        path: '/middleware',
+        middleware: [asyncKo, errorHandler, syncKo, errorHandler],
+        handler: (req, res) => {
+          res.send(req.errors)
+        }
+      }
+    ])
+
+    const api = request(server)
+
+    const postData = await api
+      .post('/middleware')
+      .send({ body: 'foo' })
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json')
+      .expect(200)
+      .end()
+
+    expect(postData.body).to.be.deep.equal(['async error', 'sync error'])
+  })
+
+  it('.createRouter create a instance of router', async () => {
+    const { createRouter } = extendFlow
+    const router = createRouter([])
+    expect(router.name).to.equal('router')
+  })
+
+  it('.withStatus should return correct status', async () => {
+    const { flow, withStatus } = extendFlow
+    const server = extendFlow(express())
+    server.use(bodyParser.json())
+
+    server.addRouters([
+      {
+        method: 'POST',
+        path: '/flow',
+        handler: flow(
+          R.prop('body'),
+          data => Promise.resolve(R.merge(data, { step2: 'async process' })),
+          R.merge({ step3: 'sync process' }),
+          data => Promise.resolve(R.merge(data, { step4: 'async process' })),
+          withStatus({
+            200: data => data['step4'] === 'async process'
+          })
+        )
+      }
+    ])
+
+    const api = request(server)
+    const expectedBody = {
+      step1: 'body',
+      step2: 'async process',
+      step3: 'sync process',
+      step4: 'async process'
+    }
+
+    const { body } = await api
+      .post('/flow')
+      .send({ step1: 'body' })
+      .expect(200) // overrides 201 CREATED from `response.process`
+      .end()
+
+    expect(expectedBody).to.deep.equal(body)
+  })
+
+  it('.withStatus should throw error when no status matches', async () => {
+    const { flow, withStatus } = extendFlow
+    const server = extendFlow(express())
+    server.use(bodyParser.json())
+
+    server.addRouters([
+      {
+        method: 'POST',
+        path: '/flow',
+        handler: flow(
+          R.prop('body'),
+          data => Promise.resolve(R.merge(data, { step2: 'async process' })),
+          R.merge({ step3: 'sync process' }),
+          data => Promise.resolve(R.merge(data, { step4: 'async process' })),
+          withStatus({
+            200: data => data['step4'] !== 'async process'
+          })
+        )
+      }
+    ])
+
+    const api = request(server)
+    const expectedBody = {
+      step1: 'body',
+      step2: 'async process',
+      step3: 'sync process',
+      step4: 'async process'
+    }
+
+    const { body } = await api
+      .post('/flow')
+      .send({ step1: 'body' })
+      .expect(500)
+      .end()
+
+    expect(expectedBody).to.not.deep.equal(body)
   })
 })

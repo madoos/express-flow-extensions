@@ -1,0 +1,15 @@
+body > header > nav > a.link.link-to-reference,
+body > header > nav > a.link.link-to-source,
+body > header > div.js_searchBox.search-box,
+body > main > footer,
+body > main > div > div > ul:nth-child(4),
+#table-of-contents,
+body
+  > aside.sidebar.js_sidebarLeft.sidebar-left.closed
+  > nav
+  > ul
+  > li.nav-item._indent-h3,
+.main-footer,
+.manual-cards {
+  display: none;
+}

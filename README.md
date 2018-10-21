@@ -8,12 +8,12 @@ For more information see [manual/Usage](manual/Usage.md) and [manual/Documentati
 
 To install:
 
-    npm i --save campusapp-express-extensions
+    npm i --save express-flow-extensions
 
 In your project:
 
 ```javascript
-const expressExtensions = require('campusapp-express-extensions')
+const expressExtensions = require('express-flow-extensions')
 const { Joi, enableReturn, flow } = expressExtensions
 const express = require('express')
 const bodyParser = require('body-parser')
@@ -23,15 +23,13 @@ const db = require('./db')
 
 const app = expressExtensions(express())
 
-cons opt = { type : 'get' }; //options for response and status server code
-
 app
 .use(bodyParser.json())
 .addRouters([
   {
     method: 'GET',
     path: '/posts',
-    handler: enableReturn(() => db.findAllPosts(),opt)
+    handler: enableReturn(() => db.findAllPosts())
   },
   {
     method: 'GET',
@@ -42,7 +40,7 @@ app
       }
     },
     middleware: [authentication],
-    handler: flow(opt,
+    handler: flow(
       R.path(['params', 'postId']),
       db.findPostById,
       db.findTagsByPost

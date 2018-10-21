@@ -1,6 +1,6 @@
 {
   "name": "express-flow-extensions",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description":
     "Set of tools to accelerate the development with express using a functional approach.",
   "main": "index.js",

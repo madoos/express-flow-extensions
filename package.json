@@ -1,49 +1,47 @@
 {
   "name": "express-flow-extensions",
   "version": "1.0.4",
-  "description":
-    "Set of tools to accelerate the development with express using a functional approach.",
+  "description": "Set of tools to accelerate the development with express using a functional approach.",
   "main": "index.js",
   "dependencies": {
     "celebrate": "^9.0.0",
-    "http-status": "^1.0.1",
+    "http-status": "^1.2.0",
     "ramda": "^0.25.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "^7.0.0",
-    "@commitlint/config-conventional": "^7.0.1",
-    "body-parser": "^1.18.2",
-    "chai": "^4.1.2",
-    "conventional-changelog-cli": "^2.0.1",
-    "coveralls": "^3.0.0",
-    "eslint": "^5.1.0",
-    "eslint-config-prettier": "^2.9.0",
-    "eslint-config-xo": "^0.23.0",
-    "eslint-plugin-prettier": "^2.6.0",
-    "express": "^4.16.3",
+    "@commitlint/cli": "^7.2.1",
+    "@commitlint/config-conventional": "^7.1.2",
+    "body-parser": "^1.18.3",
+    "chai": "^4.2.0",
+    "conventional-changelog-cli": "^2.0.5",
+    "coveralls": "^3.0.2",
+    "eslint": "^5.7.0",
+    "eslint-config-prettier": "^3.1.0",
+    "eslint-config-xo": "^0.25.0",
+    "eslint-plugin-prettier": "^3.0.0",
+    "express": "^4.16.4",
     "http-server": "^0.11.1",
-    "husky": "^0.14.3",
-    "jest": "^23.3.0",
-    "lint-staged": "^7.2.0",
+    "husky": "^1.1.2",
+    "jest": "^23.6.0",
+    "lint-staged": "^7.3.0",
     "nsp": "^3.2.1",
-    "prettier": "^1.7.0",
+    "prettier": "^1.14.3",
     "prettier-eslint-cli": "^4.7.1",
     "promisify-supertest": "^1.0.0",
-    "standard": "^11.0.1",
-    "supertest": "^3.0.0",
-    "documentation": "^8.0.0",
-    "esdoc": "^1.0.4",
-    "esdoc-brand-plugin": "^1.0.0",
+    "standard": "^12.0.1",
+    "supertest": "^3.3.0",
+    "documentation": "^8.1.2",
+    "esdoc": "^1.1.0",
+    "esdoc-brand-plugin": "^1.0.1",
     "esdoc-custom-theme": "^1.4.2",
     "esdoc-inject-script-plugin": "^1.0.0",
     "esdoc-inject-style-plugin": "^1.0.0",
     "esdoc-node": "^1.0.3",
-    "esdoc-publish-html-plugin": "^1.1.0",
+    "esdoc-publish-html-plugin": "^1.1.2",
     "esdoc-standard-plugin": "^1.0.0"
   },
   "scripts": {
-    "changelog":
-      "conventional-changelog -p eslint -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
+    "changelog": "conventional-changelog -p eslint -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
     "commitmsg": "commitlint -e $GIT_PARAMS",
     "lint": "eslint */**/*.js -f html -o ./test/reports/linter/index.html",
     "test": "jest --coverage",
@@ -56,8 +54,7 @@
     "test:coverage": "npm test",
     "prepublishOnly": "nsp check",
     "docs": "npm run doc:methods && esdoc",
-    "doc:methods":
-      "documentation build src/** -f md -o manual/Documentation.md && echo \"# Documentation\n$(cat manual/Documentation.md)\" > manual/Documentation.md",
+    "doc:methods": "documentation build src/** -f md -o manual/Documentation.md && echo \"# Documentation\n$(cat manual/Documentation.md)\" > manual/Documentation.md",
     "serve:docs": "http-server docs/ -o"
   },
   "lint-staged": {
@@ -66,7 +63,10 @@
       "eslint",
       "git add"
     ],
-    "*.json": ["prettier --write", "git add"]
+    "*.json": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "repository": {
     "type": "git",

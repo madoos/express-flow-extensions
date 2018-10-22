@@ -1,18 +1,7 @@
 const R = require('ramda')
-const isPromise = require('is-promise')
 const httpStatus = require('http-status')
 const isFunction = R.is(Function)
-const celebrate = require('celebrate')
-const validateJoiSchema = celebrate.celebrate
-const validationJoiErrors = () => (err, req, res, next) => {
-  if (celebrate.isCelebrate(err)) {
-    res.status(400).send('')
-  } else if (err) {
-    next(err)
-  } else {
-    next()
-  }
-}
+const { celebrate, errors } = require('celebrate')
 const { Router } = require('express')
 const statusProtocol = Symbol('status')
 
@@ -142,7 +131,7 @@ const _createRouter = R.curry((target, routers) => {
     if (validation) {
       target[normalizedMethod](
         path,
-        validateJoiSchema(validation),
+        celebrate(validation),
         ...middleware,
         handler
       )
@@ -151,7 +140,7 @@ const _createRouter = R.curry((target, routers) => {
     }
   })
 
-  target.use(validationJoiErrors())
+  target.use(errors())
   return target
 })
 
@@ -239,22 +228,10 @@ const projection = R.curry((descriptor, src) =>
  */
 
 const middleware = function ({ handler, target, getter }) {
-  return function (req, res, next) {
+  return async function (req, res, next) {
     try {
       const params = isFunction(getter) ? getter(req) : req[getter]
-      const result = handler(params)
-
-      if (isPromise(result)) {
-        return result
-          .then(data => {
-            req[target] = data
-            next()
-          })
-          .catch(err => {
-            return next(err)
-          })
-      }
-
+      const result = await handler(params)
       req[target] = result
       next()
     } catch (e) {
@@ -286,9 +263,9 @@ const middleware = function ({ handler, target, getter }) {
 const background = R.tap
 
 module.exports = {
+  _createRouter,
   flow,
   enableReturn: R.ifElse(isFunction, enableReturn, R.map(enableReturn)),
-  _createRouter,
   createRouter,
   pipe,
   projection,

@@ -83,18 +83,24 @@ const enableReturn = handler => {
  * @returns {Object} containing data and first status that matched its condition
  */
 const withStatus = R.curry((descriptor, data) => {
-  const matchedStatus = R.pipe(
-    R.pickBy(R.applyTo(data)), // test against conditions specified in descriptor values
-    R.keys,
-    R.head,
-    Number
-  )(descriptor)
-  if (!matchedStatus) {
-    throw new Error('undefined status')
+  let statusMatched
+  let statusCodes = Object.keys(descriptor)
+  for (let i = 0; i < statusCodes.length; i++) {
+    let status = statusCodes[i]
+    let isSelectedStatus = descriptor[status]
+    if (isSelectedStatus(data)) {
+      statusMatched = status
+      break
+    }
   }
+
+  if (!statusMatched) {
+    throw new Error(`undefined status check withStatus descriptor`)
+  }
+
   return {
     data,
-    [statusProtocol]: matchedStatus
+    [statusProtocol]: statusMatched
   }
 })
 
